@@ -1,9 +1,5 @@
 'use strict';
 
-exports.PORT = process.env.PORT || 8080; 
-
-'use strict';
-
 const DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/blog-app';
 
 exports.DATABASE = {
