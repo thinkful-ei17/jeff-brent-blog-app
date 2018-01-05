@@ -26,7 +26,7 @@ function normalizeResponseErrors(res) {
   return res;
 }
 
-var api = {
+const api = {
   search: function (query = {}) {
     const url = buildUrl('/api/v1/stories/', query);
 
