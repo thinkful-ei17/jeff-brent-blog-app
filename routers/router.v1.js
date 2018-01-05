@@ -8,13 +8,13 @@ const knex = require('knex')(DATABASE);
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/stories', (req, res, next) => {
-  knex('stories')
-    .select('id', 'title', 'content', 'created')
+  knex.select('id', 'title', 'content', 'created')
+    .from('stories')
     .orderBy('created')
     .then(results => {
       res.json(results);
     })
-    .catch(next);
+    .catch(next); // invoke error handler
 });
 
 /* ========== GET/READ SINGLE ITEMS ========== */
@@ -23,10 +23,9 @@ router.get('/stories/:id', (req, res, next) => {
 
   /***** Never Trust Users! *****/
   if (isNaN(id)) {
-    var err = new Error('Id must be a valid integer');
+    const err = new Error('Id must be a valid integer');
     err.status = 400;
-    next(err);
-    return;
+    return next(err);
   }
 
   knex('stories')
@@ -39,7 +38,7 @@ router.get('/stories/:id', (req, res, next) => {
         next(); // fall-through to 404 handler
       }
     })
-    .catch(err => next(err)); // invoke error handler
+    .catch(next); // invoke error handler
 });
 
 /* ========== POST/CREATE ITEM ========== */
@@ -48,10 +47,9 @@ router.post('/stories', (req, res, next) => {
 
   /***** Never Trust Users! *****/
   if (!req.body.title) {
-    var err = new Error('Request must contain a title');
+    const err = new Error('Request must contain a title');
     err.status = 400;
-    next(err);
-    return;
+    return next(err);
   }
 
   knex('stories')
@@ -60,7 +58,7 @@ router.post('/stories', (req, res, next) => {
     .then(([result]) => {
       res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
-    .catch(err => next(err)); // invoke error handler
+    .catch(next); // invoke error handler
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
@@ -70,20 +68,20 @@ router.put('/stories/:id', (req, res, next) => {
 
   /***** Never Trust Users! *****/
   if (isNaN(id)) {
-    var err = new Error('Id must be a valid integer');
+    const err = new Error('Id must be a valid integer');
     err.status = 400;
-    next(err);
-    return;
+    return next(err);
   }
 
   if (!req.body.title) {
-    res.status(400).send('Request must contain a title');
-    return;
+    const err = new Error('Request must contain a title');
+    err.status = 400;
+    return next(err);
   }
 
   knex('stories')
     .update({ title, content })
-    .where('id', req.params.id)
+    .where('id', id)
     .returning(['id', 'title', 'content'])
     .then(([result]) => {
       if (result) {
@@ -92,7 +90,7 @@ router.put('/stories/:id', (req, res, next) => {
         next(); // fall-through to 404 handler
       }
     })
-    .catch(err => next(err)); // invoke error handler
+    .catch(next); // invoke error handler
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
@@ -101,15 +99,14 @@ router.delete('/stories/:id', (req, res, next) => {
 
   /***** Never Trust Users! *****/
   if (isNaN(id)) {
-    var err = new Error('Id must be a valid integer');
+    const err = new Error('Id must be a valid integer');
     err.status = 400;
-    next(err);
-    return;
+    return next(err);
   }
 
   knex('stories')
     .del()
-    .where('id', req.params.id)
+    .where('id', id)
     .then(result => {
       if (result) {
         res.sendStatus(204);
@@ -117,7 +114,7 @@ router.delete('/stories/:id', (req, res, next) => {
         next(); // fall-through to 404 handler
       }
     })
-    .catch(err => next(err)); // invoke error handler
+    .catch(next); // invoke error handler
 });
 
 module.exports = router;
